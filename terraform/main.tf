@@ -15,7 +15,7 @@ terraform {
 
 variable "tenancy_ocid" {
   type        = string
-  description = "OCID of the tenancy (quota policies live at the root compartment)"
+  description = "OCID of the tenancy (this example places the policy at the tenancy root)"
 }
 
 resource "oci_limits_quota" "govern_webshop" {
