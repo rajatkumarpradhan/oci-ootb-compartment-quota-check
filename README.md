@@ -9,8 +9,8 @@ pair is `oci-autonomous-db-config-audit`.
   docs, quota policies are lists of statements written in a small declarative language -
   `set`, `unset`, `zero` - and **within a policy, a later statement supersedes an earlier
   statement targeting the same resource**. A policy can therefore quietly cancel itself,
-  and a compartment without any quota statement is bounded only by the tenancy's service
-  limits.
+  and a missing direct statement is a coverage gap in the supplied export, not proof of
+  effective limits.
 
 ## Custom code vs native config
 
@@ -26,9 +26,9 @@ pair is `oci-autonomous-db-config-audit`.
 
 | Rule | Severity | Fires when |
 | ---- | -------- | ---------- |
-| QTA001 | HIGH | A **prod-labeled** compartment is targeted by no quota statement in the export - resource creation there is bounded only by service limits. Review flag. |
+| QTA001 | HIGH | A **prod-labeled** compartment is targeted by no quota statement in the export - direct coverage is missing in this export. Inherited or tenancy-wide rules may still apply. |
 | QTA002 | MEDIUM | A recorded statement **does not parse** against the documented grammar (`set/unset/zero <family> quota(s) [name] [to N] in tenancy|compartment <name> [where ...]`) - a transcription error or invalid statement as recorded. |
-| QTA003 | MEDIUM | Within one policy, a broad `zero <family> quotas` statement appears **after** a `set <family> quota ...` for the same family and target - per the docs the later statement supersedes, silently cancelling the earlier allocation. |
+| QTA003 | MEDIUM | Within one policy, a broad `zero <family> quotas` statement appears **after** a `set <family> quota ...` for the same family and target, with neither statement conditional - per the docs the later statement supersedes, silently cancelling the earlier allocation. |
 | QTA004 | LOW | A quota policy records **zero statements** - empty scaffolding as far as the export records. |
 
 Exit code: `2` on any HIGH, `1` on MEDIUM/LOW only, `0` when clean.
@@ -58,3 +58,14 @@ python -m unittest discover -s tests -v               # 27 tests, stdlib only
 
 Built as a daily OOTB project. 27 unit tests, green locally and in CI. Free tier only; no
 live cloud calls, no spend.
+
+## Scope and sources
+
+Only offline tests and synthetic demos ran locally and in GitHub Actions. Native quota
+configuration is template-only. This is not an effective-permissions engine: ancestor
+coverage, full compartment identities, quota-name validation and condition evaluation
+are not implemented. QTA003 checks unconditional statements only. Quota policies can
+be created in any compartment; the example places one at the tenancy root.
+
+- https://docs.oracle.com/en-us/iaas/Content/Quotas/Concepts/quota_policy_syntax.htm
+- https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/limits_quota
