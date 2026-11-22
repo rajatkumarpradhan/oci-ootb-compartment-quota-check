@@ -26,7 +26,7 @@ def rule_prod_without_quota(compartments: tuple, policies: tuple) -> list:
             out.append(
                 Finding("QTA001", "HIGH", c.name,
                         "prod-labeled compartment is targeted by no quota statement in this export; "
-                        "resource creation there is bounded only by service limits - review flag")
+                        "direct coverage gap only; inherited and tenancy-wide rules may still apply")
             )
     return out
 
@@ -51,10 +51,10 @@ def rule_zero_overrides_set(compartments: tuple, policies: tuple) -> list:
     out = []
     for p in policies:
         for idx, s in enumerate(p.statements):
-            if not s.broad_zero:
+            if not s.broad_zero or " where " in s.raw.lower():
                 continue
             for earlier in p.statements[:idx]:
-                if (earlier.action == "set" and earlier.family == s.family
+                if (earlier.action == "set" and " where " not in earlier.raw.lower() and earlier.family == s.family
                         and earlier.scope_kind == s.scope_kind
                         and earlier.scope_target == s.scope_target):
                     out.append(
