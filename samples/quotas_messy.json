@@ -1,0 +1,19 @@
+{
+  "compartments": [
+    {"name": "webshop-prod", "labels": ["prod"]},
+    {"name": "sandbox", "labels": ["dev"]}
+  ],
+  "quota_policies": [
+    {"name": "govern-sandbox", "statements": [
+      "set compute-core quota standard-e4-core-count to 10 in compartment sandbox"
+    ]},
+    {"name": "bad-typing", "statements": [
+      "set compute-core quotaa standard-e4-core-count to 5 in compartment sandbox"
+    ]},
+    {"name": "self-cancelling", "statements": [
+      "set compute-core quota standard-e4-core-count to 240 in tenancy",
+      "zero compute-core quotas in tenancy"
+    ]},
+    {"name": "empty-policy", "statements": []}
+  ]
+}
