@@ -1,0 +1,16 @@
+{
+  "compartments": [
+    {"name": "webshop-prod", "labels": ["prod"]},
+    {"name": "sandbox", "labels": ["dev"]}
+  ],
+  "quota_policies": [
+    {"name": "govern-webshop", "statements": [
+      "zero compute-core quotas in compartment webshop-prod",
+      "set compute-core quota standard-e4-core-count to 240 in compartment webshop-prod",
+      "set database quota /*exadata*/ to 1 in tenancy"
+    ]},
+    {"name": "govern-sandbox", "statements": [
+      "set compute-core quota standard-e4-core-count to 10 in compartment sandbox"
+    ]}
+  ]
+}
